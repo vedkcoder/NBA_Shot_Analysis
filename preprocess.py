@@ -3,6 +3,7 @@
 
 import os
 import pandas as pd
+import random
 
 
 def process_zone():
@@ -216,3 +217,160 @@ def process_shotclock():
         shotclock_df = pd.concat([shotclock_df,df], axis=0, ignore_index=True)
 
     shotclock_df.to_csv(path_or_buf='ShotclockTotal.csv')
+
+
+def process_combined():
+    files = [f for f in os.listdir('CombinedData') if os.path.isfile(os.path.join('CombinedData', f))]
+    new_cols = ['index', 'PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'TEAM', 'Age', 'Season', 'FGM', 'FGA', 'FG%', 'Zone','ShotClock Range']
+    combined_df_t = pd.DataFrame()
+    for file in files:
+        df = pd.read_csv('CombinedData/' + file)
+
+        ### df for biodata
+        biodata_df = df.iloc[:, :6]
+
+        ### split file string to get season
+        x, y, z = file.split(sep='_')
+        z1, z2 = z.split(sep='.')
+
+        ### add to biodata column
+        biodata_df['Season'] = [y for _ in range(len(biodata_df))]
+
+        ### split dataframes to get df for each zone and preprocess it
+        restricted_dat = df.iloc[:, 7:10]
+        restricted_dat['Zone'] = [0 for _ in range(len(restricted_dat))]
+        restricted_dat['ShotClock Range'] = [z1 for _ in range(len(restricted_dat))]
+        restricted_dat = pd.concat([biodata_df, restricted_dat], axis=1)
+        restricted_dat.columns = new_cols
+        restricted_dat = restricted_dat.drop(restricted_dat.columns[0], axis=1)
+        restricted_dat = restricted_dat.iloc[1:, :]
+        restricted_dat.reset_index()
+
+        paint_dat = df.iloc[:, 10:13]
+        paint_dat['Zone'] = [1 for _ in range(len(paint_dat))]
+        paint_dat['ShotClock Range'] = [z1 for _ in range(len(paint_dat))]
+        paint_dat = pd.concat([biodata_df, paint_dat], axis=1)
+        paint_dat.columns = new_cols
+        paint_dat = paint_dat.drop(paint_dat.columns[0], axis=1)
+        paint_dat = paint_dat.iloc[1:, :]
+        paint_dat.reset_index()
+
+        midrange_dat = df.iloc[:, 13:16]
+        midrange_dat['Zone'] = [2 for _ in range(len(midrange_dat))]
+        midrange_dat['ShotClock Range'] = [z1 for _ in range(len(midrange_dat))]
+        midrange_dat = pd.concat([biodata_df, midrange_dat], axis=1)
+        midrange_dat.columns = new_cols
+        midrange_dat = midrange_dat.drop(midrange_dat.columns[0], axis=1)
+        midrange_dat = midrange_dat.iloc[1:, :]
+        midrange_dat.reset_index()
+
+        left3_dat = df.iloc[:, 16:19]
+        left3_dat['Zone'] = [3 for _ in range(len(left3_dat))]
+        left3_dat['ShotClock Range'] = [z1 for _ in range(len(left3_dat))]
+        left3_dat = pd.concat([biodata_df, left3_dat], axis=1)
+        left3_dat.columns = new_cols
+        left3_dat = left3_dat.drop(left3_dat.columns[0], axis=1)
+        left3_dat = left3_dat.iloc[1:, :]
+        left3_dat.reset_index()
+
+        right3_dat = df.iloc[:, 19:22]
+        right3_dat['Zone'] = [4 for _ in range(len(right3_dat))]
+        right3_dat['ShotClock Range'] = [z1 for _ in range(len(right3_dat))]
+        right3_dat = pd.concat([biodata_df, right3_dat], axis=1)
+        right3_dat.columns = new_cols
+        right3_dat = right3_dat.drop(right3_dat.columns[0], axis=1)
+        right3_dat = right3_dat.iloc[1:, :]
+        right3_dat.reset_index()
+
+        break3_dat = df.iloc[:, 22:25]
+        break3_dat['Zone'] = [5 for _ in range(len(break3_dat))]
+        break3_dat['ShotClock Range'] = [z1 for _ in range(len(break3_dat))]
+        break3_dat = pd.concat([biodata_df, break3_dat], axis=1)
+        break3_dat.columns = new_cols
+        break3_dat = break3_dat.drop(break3_dat.columns[0], axis=1)
+        break3_dat = break3_dat.iloc[1:, :]
+        break3_dat.reset_index()
+
+        back_dat = df.iloc[:, 25:28]
+        back_dat['Zone'] = [6 for _ in range(len(back_dat))]
+        back_dat['ShotClock Range'] = [z1 for _ in range(len(back_dat))]
+        back_dat = pd.concat([biodata_df, back_dat], axis=1)
+        back_dat.columns = new_cols
+        back_dat = back_dat.drop(back_dat.columns[0], axis=1)
+        back_dat = back_dat.iloc[1:, :]
+        back_dat.reset_index()
+
+        corner3_dat = df.iloc[:, 28:31]
+        corner3_dat['Zone'] = [7 for _ in range(len(corner3_dat))]
+        corner3_dat['ShotClock Range'] = [z1 for _ in range(len(corner3_dat))]
+        corner3_dat = pd.concat([biodata_df, corner3_dat], axis=1)
+        corner3_dat.columns = new_cols
+        corner3_dat = corner3_dat.drop(corner3_dat.columns[0], axis=1)
+        corner3_dat = corner3_dat.iloc[1:, :]
+        corner3_dat.reset_index()
+
+        ### combine stacking all df horizontally and saving csv
+        combined_df = pd.concat(
+            [restricted_dat, paint_dat, midrange_dat, left3_dat, right3_dat, break3_dat, back_dat, corner3_dat], axis=0,
+            ignore_index=True)
+        combined_df.reset_index()
+        combined_df_t = pd.concat([combined_df_t, combined_df], axis=0)
+
+    combined_df_t.to_csv(path_or_buf='CombinedTotal.csv')
+
+### code to preprocess and merge all 3 features
+def merge(df):
+    new_df = pd.DataFrame()
+    for i in range(len(df)):
+        print(i)
+        datapoint = pd.DataFrame(df.loc[i,:])
+        datapoint = datapoint.transpose()
+        datapoint['Dist'] = None
+        new_df = pd.concat([new_df, datapoint], axis=0)
+        if datapoint.loc[i,'Zone'].item() == 0:
+            new_df.loc[i, 'Dist'] = '<5'
+
+        if datapoint.loc[i, 'Zone'].item() == 1:
+            num = random.randint(0, 1)
+            if num == 0:
+                new_df.loc[i, 'Dist'] = '5-9'
+            else:
+                new_df.loc[i, 'Dist'] = '10-14'
+
+        if datapoint.loc[i, 'Zone'].item() == 2:
+            num = random.randint(0,2)
+            if num == 0:
+                new_df.loc[i, 'Dist'] = '15-19'
+            elif num == 1:
+                new_df.loc[i, 'Dist'] = '20-24'
+            else:
+                new_df.loc[i, 'Dist'] = '25-30'
+
+        if datapoint.loc[i, 'Zone'].item() == 3:
+            num = random.randint(0, 1)
+            if num == 0:
+                new_df.loc[i, 'Dist'] = '25-29'
+            else:
+                new_df.loc[i, 'Dist'] = '30-34'
+
+        if datapoint.loc[i, 'Zone'].item() == 4:
+            num = random.randint(0, 1)
+            if num == 0:
+                new_df.loc[i, 'Dist'] = '25-29'
+            else:
+                new_df.loc[i, 'Dist'] = '30-34'
+
+        if datapoint.loc[i, 'Zone'].item() == 5:
+            new_df.loc[i, 'Dist'] = '30-34'
+
+        if datapoint.loc[i, 'Zone'].item() == 6:
+            num = random.randint(0, 1)
+            if num == 0:
+                new_df.loc[i, 'Dist'] = '35-39'
+            else:
+                new_df.loc[i, 'Dist'] = '40>'
+
+    return new_df
+
+
+
