@@ -10,8 +10,8 @@ import preprocess
 
 
 # Run only once to preprocess and generate all the processed datasets
-# preprocess.process_zone()
-# preprocess.process_dist()
+preprocess.process_zone()
+preprocess.process_dist()
 preprocess.process_shotclock()
 
 
