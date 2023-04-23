@@ -10,7 +10,7 @@ def process_zone():
 
     ### Files variable is list of csv files
     files = [f for f in os.listdir('ZoneData') if os.path.isfile(os.path.join('ZoneData', f))]
-
+    zone_df_t = pd.DataFrame()
     ### iterate over each csv for every season of nba
     for file in files:
         ### new columns for the final df we create
@@ -27,7 +27,7 @@ def process_zone():
         z1, z2 = z.split(sep='.')
 
         ### add to biodata column
-        biodata_df['Season'] = z1
+        biodata_df['Season'] = [z1 for _ in range(len(biodata_df))]
 
         ### split dataframes to get df for each zone and preprocess it
         restricted_dat = df.iloc[:, 7:10]
@@ -99,14 +99,16 @@ def process_zone():
             [restricted_dat, paint_dat, midrange_dat, left3_dat, right3_dat, break3_dat, back_dat, corner3_dat], axis=0,
             ignore_index=True)
         zone_df.reset_index()
-        print(zone_df)
-        zone_df.to_csv(path_or_buf='ZoneTotal.csv')
+        zone_df_t = pd.concat([zone_df_t, zone_df], axis=0)
+
+    zone_df_t.to_csv(path_or_buf='ZoneTotal.csv')
 
 
 ### similarly for distance
 def process_dist():
     # mapping :- 0: Less than 5ft, 1: 5-9ft, 2: 10-14ft, 3: 15-19ft, 4: 20-24ft, 5: 25-29ft, 6: 30-34ft, 7: 35-39ft, 8: 40+ft
     files = [f for f in os.listdir('DistData') if os.path.isfile(os.path.join('DistData', f))]
+    dist_df_t = pd.DataFrame()
     for file in files:
         new_cols = ['index', 'PLAYER_ID', 'PLAYER_NAME', 'TEAM_ID', 'Team', 'Age', 'Season','FGM', 'FGA', 'FG%', 'Distance']
         df = pd.read_csv('DistData/' + file)
@@ -114,7 +116,7 @@ def process_dist():
 
         x, y, z = file.split(sep='_')
         z1, z2 = z.split(sep='.')
-        biodata_df['Season'] = z1
+        biodata_df['Season'] = [z1 for _ in range(len(biodata_df))]
 
         lessthan5_df = df.iloc[:, 7:10]
         lessthan5_df['Distance'] = [0 for _ in range(len(lessthan5_df))]
@@ -193,8 +195,10 @@ def process_dist():
              thirtyfiveft_df, over40ft_df], axis=0,
             ignore_index=True)
         dist_df.reset_index()
-        print(dist_df)
-        dist_df.to_csv(path_or_buf='DistTotal.csv')
+        dist_df_t= pd.concat([dist_df_t,dist_df], axis=0)
+
+    dist_df_t.to_csv(path_or_buf='DistTotal.csv')
+
 
 
 def process_shotclock():
@@ -203,17 +207,11 @@ def process_shotclock():
     for file in files:
         ### code to split filename into components we want
         x,y,season,clock = file.split(sep='_')
-        try:
-            time, stage_raw = clock.split(sep=' ')
-            stage, csv = stage_raw.split(sep='.')
-        except:
-            time, csv = clock.split(sep='.')
-            stage = 'Beginning'
+        time, csv = clock.split('.')
 
         df = pd.read_csv('ShotclockData/'+file)
         df['Season'] = [season for _ in range(len(df))]
         df['Shot Clock Time'] = [time for _ in range(len(df))]
-        df['Shot Clock Range'] = [stage for _ in range(len(df))]
 
         shotclock_df = pd.concat([shotclock_df,df], axis=0, ignore_index=True)
 
