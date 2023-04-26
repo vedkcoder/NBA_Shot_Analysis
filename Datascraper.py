@@ -52,3 +52,21 @@ def combined_dataset():
                                                      shot_clock_range_nullable=clock)
             df = obj.get_data_frames()[0]
             df.to_csv(path_or_buf=f'CombinedData/CombinedData_{season}_{clock}.csv'.format(season=season, clock=clock))
+
+
+def morecombined_dataset():
+    seasons = ['2021-22']
+
+    for season in seasons:
+        shot_clocks = ['24-22', '22-18 Very Early', '18-15 Early', '15-7 Average', '7-4 Late', '4-0 Very Late']
+        for clock in shot_clocks:
+            dribble_range = ['0 Dribbles', '1 Dribbles', '2 Dribbles', '3-6 Dribbles']
+            for dribble in dribble_range:
+                closest_def = ['0-2 Feet (Very Tight)', '2-4 Feet (Tight)', '4-6 Feet (Open)']
+                for closest in closest_def:
+                    obj = shot.LeagueDashPlayerPtShot(per_mode_simple='Totals',
+                                                      season_type_all_star='Regular Season', season=season,
+                                                      shot_clock_range_nullable=clock, dribble_range_nullable=dribble,
+                                                      close_def_dist_range_nullable=closest)
+                    df = obj.get_data_frames()[0]
+                    df.to_csv(path_or_buf=f'Super/CombinedFData_{season}_{clock}_{dribble}_{closest}.csv')

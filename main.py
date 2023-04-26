@@ -8,7 +8,7 @@ import preprocess
 # Datascraper.create_dist_dataset()
 # Datascraper.create_shotclock_dataset()
 # Datascraper.combined_dataset()
-
+# Datascraper.morecombined_dataset()
 
 # Run only once to preprocess and generate all the processed datasets
 # preprocess.process_zone()
@@ -16,10 +16,11 @@ import preprocess
 # preprocess.process_shotclock()
 # preprocess.process_combined()
 
-df = pd.read_csv('CombinedTotal.csv')
-new_df = preprocess.merge(df)
-new_df.to_csv('Final.csv')
+# df = pd.read_csv('CombinedTotal.csv')
+# new_df = preprocess.merge(df)
+# new_df.to_csv('Final.csv')
 
+preprocess.train()
 
 
 
