@@ -1,9 +1,19 @@
 # This file handles all preprocessing of data
 # Function preprocess_zone data is used for breaking down data by individual zones and vertically stacking them to make zone a column in the dataset.
-
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.impute import SimpleImputer
 import os
 import pandas as pd
 import random
+from sklearn.model_selection import train_test_split
+import keras
+from keras.models import Sequential
+from keras.layers import Dense
+import pickle
 
 
 def process_zone():
@@ -371,6 +381,47 @@ def merge(df):
                 new_df.loc[i, 'Dist'] = '40>'
 
     return new_df
+
+def train():
+    data = pd.read_csv('Final.csv')
+    data1 = data.dropna()
+    clean_data = data1.drop(columns=['Unnamed: 0', 'Unnamed: 0.1', 'PLAYER_NAME', 'PLAYER_ID', 'TEAM_ID', 'TEAM', 'Age', 'Season'])
+    clean_data = clean_data.reset_index()
+    clean_data1 = clean_data.drop('index', axis=1)
+    y = clean_data[['Zone']]
+    clean_data2 = clean_data1.drop(['Zone'], axis=1)
+
+    sc = StandardScaler()
+    cat_cols = ['ShotClock Range', 'Dist']
+    OE = OneHotEncoder()
+    oe = OneHotEncoder()
+    oe.fit(clean_data2)
+    # print(OE)
+    # return
+    numeric_cols = ['FGM', 'FGA', 'FG%']
+    num_pipeline = Pipeline(steps=[('Imputer', SimpleImputer(strategy='median')), ('Standard Scaler', StandardScaler())])
+    ct = ColumnTransformer(transformers=[('cats', OE, cat_cols), ('num', num_pipeline, numeric_cols)])
+    pipe = Pipeline(steps=[('pipe', ct)])
+    pipe.fit(clean_data2)
+    inputs = pipe.transform(clean_data2)
+    inputs = inputs.toarray()
+    x_train, x_test, y_train, y_test = train_test_split(inputs, y, test_size=0.2, random_state=0)
+
+    model = Sequential()
+    model.add(Dense(units=256, activation='leaky_relu', input_dim=19, name='Input'))
+    model.add(Dense(units=256, activation='leaky_relu', name='Hidden_1'))
+    model.add(keras.layers.Dropout(rate=0.2, name='Dropout_1'))
+    model.add(Dense(units=256, activation='leaky_relu', name='Hidden_2'))
+    model.add(keras.layers.Dropout(rate=0.2, name='DropOut_2'))
+    model.add(Dense(units=7, activation='softmax', name='Output'))
+
+    model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+    model.summary()
+
+    model.fit(x_train, y_train, epochs=5, validation_split=0.1, batch_size=32)
+    keras.models.save_model(model, filepath='dm/')
+    pickle.dump(pipe, open('pipe.pkl', 'wb'))
+
 
 
 
