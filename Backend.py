@@ -1,12 +1,7 @@
 import pickle
-
 import keras.models
-import numpy as np
 import pandas as pd
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder, MinMaxScaler
+import random
 
 
 def choose_team():
@@ -30,8 +25,8 @@ def preprocess(data, clean_data2=None):
     p3_raw = source_data[source_data['PLAYER_NAME'] == data[2]]
     p4_raw = source_data[source_data['PLAYER_NAME'] == data[3]]
     p5_raw = source_data[source_data['PLAYER_NAME'] == data[4]]
-    clock = source_data[source_data['PLAYER_NAME'] == data[5]]
-    # quarter = data[6]
+    clock = data[5]
+    quarter = data[6]
 
     p1_data = p1_raw.loc[:, ['FGM', 'FGA', 'FG%', 'ShotClock Range', 'Dist']]
     p2_data = p2_raw.loc[:, ['FGM', 'FGA', 'FG%', 'ShotClock Range', 'Dist']]
@@ -61,10 +56,11 @@ def predict(dataset):
     model = keras.models.load_model('dm')
     preds = model.predict(dataset)
     preds = [list(x) for x in zip(*preds)]
-    final_preds = [max(x) for x in preds]
-    print(final_preds)
-
+    preds_f = [item for sublist in preds for item in sublist]
+    random.shuffle(preds_f)
+    final_preds = random.choices(preds_f, k=7)
+    return final_preds
 
 # print(choose_team())
 # print(choose_player('LAC'))
-preprocess(['Jason Preston', 'John Wall', 'Kawhi Leonard', 'Marcus Morris Sr.', 'Mason Plumlee', '22-18 Very Early'])
+# print(preprocess(['Jason Preston', 'John Wall', 'Kawhi Leonard', 'Marcus Morris Sr.', 'Mason Plumlee', '15-7 Average']))
