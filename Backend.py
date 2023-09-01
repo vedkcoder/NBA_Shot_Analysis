@@ -11,10 +11,10 @@ def choose_team():
 
 def choose_player(team):
     data = pd.read_csv('Final.csv')
-    return list(data[(data['TEAM'] == team) & (data['Season'] == '2022-23')]['PLAYER_NAME'].unique())
+    return list(data[(data['TEAM'] == team) & (data['Season'] == '2021-22')]['PLAYER_NAME'].unique())
 
 
-def preprocess(data, clean_data2=None):
+def preprocess(data):
     source_data = pd.read_csv('Final.csv')
     source_data.dropna(inplace=True)
     source_data.reset_index(inplace=True)
