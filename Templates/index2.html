@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<meta charset="UTF-8">
+    <title>NBA Shot Prediction</title>
+
+	<style>
+		body {
+    		background-color: #0B0C10;
+    		background-image: url('img1-min.png');
+		}
+		h1 {
+    		color: #FFFFFF;
+    		text-align: center;
+    		font-family: Georgia, serif;
+		}
+
+		select {
+			width: 175px;
+			border-radius: 5px;
+		}
+		input {
+			width: 175px;
+			border-radius: 5px;
+		}
+		.ml-container {
+			text-align: center;
+			font-family: Georgia, serif;
+		}
+		.ml-container2 {
+			text-align: center;
+			font-family: Georgia, serif;
+		}
+		.table1{
+			margin-left: auto;
+			margin-right: auto;
+			background-color: #5b5b5b;
+			border-radius: 25px;
+			color: #C5C6C7;
+
+		}
+		.table2{
+			margin-left: auto;
+			margin-right: auto;
+			background-color: #5b5b5b;
+			border-radius: 25px;
+			color: #C5C6C7;
+
+		}
+		.btn-info {
+			background-color: #0B0C10;
+			border-radius: 12px;
+			color: white;
+			font-size: 18px;
+			width: 110px;
+			height: 40px;
+			font-family: Georgia, serif;
+			border-color: #cf673e;
+		}
+		.btn-info:hover {
+			background-color: white;
+			color: #0B0C10;
+		}
+		.first{
+			text-align: right;
+			padding: 10px;
+			opacity: 1;
+		}
+		.sec{
+			text-align: left;
+			padding: 10px;
+			opacity: 1;
+		}
+		.out{
+			color: #FFFFFF;
+    		text-align: center;
+    		font-family: Georgia, serif;
+    		font-size: 150%;
+		}
+		 .container {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+		  }
+
+		  .plot {
+			margin: 10px;
+		  }
+
+	</style>
+</head>
+<body style="background-image: url('https://wallpapercave.com/wp/wp6135640.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+
+
+	<div class = "ml-container2" id = 'player-form' >
+        <h1>OUTCOME</h1>
+		<div class="container">
+			<div class="plot">
+				  <img src="data:image/png;base64,{{ max_plot }}" /><br>
+					<label style="color: #FFFFFF;">Strong Zone</label>
+			</div>
+			<div class="plot">
+				  <img src="data:image/png;base64,{{ min_plot }}" /><br>
+					<label style="color: #FFFFFF;">Weak Zone</label>
+			</div>
+		</div>
+
+		 <div class="container">
+
+			  {% for plot_data, caption in plot_list|zip(p_list) %}
+				<div class="plot">
+				  <img src="data:image/png;base64,{{ plot_data }}" />
+					<label style="color: #FFFFFF;">{{caption}}</label>
+				</div>
+			  {% endfor %}
+
+    </div>
+<!--		<div class="out">{{plot_list}}></div>-->
+<!--		<div class="out">{{predicted_confidence}}</div>-->
+
+	</div>
+
+
+<!--	<script>-->
+<!--		const getPlayersBtn = document.getElementById('get-players-btn');-->
+<!--		const division2 = document.getElementById('player-form');-->
+
+<!--		getPlayersBtn.addEventListener('click', function() {-->
+<!--		  division2.style.display = 'block';-->
+<!--		});-->
+<!--</script>-->
+
+
+</body>
+</html>
